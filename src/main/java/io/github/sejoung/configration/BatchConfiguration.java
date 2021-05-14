@@ -1,6 +1,5 @@
 package io.github.sejoung.configration;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 
 import org.springframework.batch.core.configuration.annotation.BatchConfigurer;
@@ -22,17 +21,31 @@ public class BatchConfiguration implements BatchConfigurer {
 
   private final EntityManagerFactory entityManagerFactory;
 
-  private PlatformTransactionManager transactionManager;
+  private final PlatformTransactionManager transactionManager;
 
-  private JobRepository jobRepository;
+  private final JobRepository jobRepository;
 
-  private JobLauncher jobLauncher;
+  private final JobLauncher jobLauncher;
 
-  private JobExplorer jobExplorer;
+  private final JobExplorer jobExplorer;
 
   public BatchConfiguration(EntityManagerFactory entityManagerFactory) {
 
     this.entityManagerFactory = entityManagerFactory;
+    try {
+      this.transactionManager = buildTransactionManager();
+      MapJobRepositoryFactoryBean jobRepositoryFactory = new MapJobRepositoryFactoryBean(
+        getTransactionManager());
+      jobRepositoryFactory.afterPropertiesSet();
+      this.jobRepository = jobRepositoryFactory.getObject();
+      MapJobExplorerFactoryBean jobExplorerFactory = new MapJobExplorerFactoryBean(
+        jobRepositoryFactory);
+      jobExplorerFactory.afterPropertiesSet();
+      this.jobExplorer = jobExplorerFactory.getObject();
+      this.jobLauncher = createJobLauncher();
+    } catch (Exception ex) {
+      throw new IllegalStateException("Unable to initialize Spring Batch", ex);
+    }
   }
 
   @Override
@@ -53,24 +66,6 @@ public class BatchConfiguration implements BatchConfigurer {
   @Override
   public JobExplorer getJobExplorer() {
     return this.jobExplorer;
-  }
-
-  @PostConstruct
-  public void initialize() {
-    try {
-      this.transactionManager = buildTransactionManager();
-      MapJobRepositoryFactoryBean jobRepositoryFactory = new MapJobRepositoryFactoryBean(
-        getTransactionManager());
-      jobRepositoryFactory.afterPropertiesSet();
-      this.jobRepository = jobRepositoryFactory.getObject();
-      MapJobExplorerFactoryBean jobExplorerFactory = new MapJobExplorerFactoryBean(
-        jobRepositoryFactory);
-      jobExplorerFactory.afterPropertiesSet();
-      this.jobExplorer = jobExplorerFactory.getObject();
-      this.jobLauncher = createJobLauncher();
-    } catch (Exception ex) {
-      throw new IllegalStateException("Unable to initialize Spring Batch", ex);
-    }
   }
 
   protected JobLauncher createJobLauncher() throws Exception {

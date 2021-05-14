@@ -1,7 +1,6 @@
 package io.github.sejoung.jobs;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
@@ -21,7 +20,6 @@ class CSVToDatabaseJobTest {
   @Autowired
   private JobLauncherTestUtils jobLauncherTestUtils;
 
-  @DisplayName("CSVToDatabaseJobTest")
   @Test
   void job() throws Exception {
     JobExecution jobExecution = jobLauncherTestUtils.launchJob();
