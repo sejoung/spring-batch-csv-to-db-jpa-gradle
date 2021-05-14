@@ -38,7 +38,7 @@ public class FileToDatabaseJob {
     return new FlatFileItemReaderBuilder<CSVFile>()
       .name("personItemReader")
       .resource(new ClassPathResource("sample-data.csv"))
-      .delimited().names(new String[] {"firstName", "lastName"})
+      .delimited().names("firstName", "lastName")
       .fieldSetMapper(new PersonFieldSetMapper()).build();
   }
 
