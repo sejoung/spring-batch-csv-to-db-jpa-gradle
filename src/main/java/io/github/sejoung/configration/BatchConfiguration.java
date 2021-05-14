@@ -68,25 +68,14 @@ public class BatchConfiguration implements BatchConfigurer {
     return this.jobExplorer;
   }
 
-  protected JobLauncher createJobLauncher() throws Exception {
+  private JobLauncher createJobLauncher() throws Exception {
     SimpleJobLauncher jobLauncher = new SimpleJobLauncher();
     jobLauncher.setJobRepository(getJobRepository());
     jobLauncher.afterPropertiesSet();
     return jobLauncher;
   }
 
-  /**
-   * Determine the isolation level for create* operation of the {@link JobRepository}.
-   *
-   * @return the isolation level or {@code null} to use the default
-   */
-  protected String determineIsolationLevel() {
-    log.warn(
-      "JPA does not support custom isolation levels, so locks may not be taken when launching Jobs");
-    return "ISOLATION_DEFAULT";
-  }
-
-  protected PlatformTransactionManager createTransactionManager() {
+  private PlatformTransactionManager createTransactionManager() {
     return new JpaTransactionManager(this.entityManagerFactory);
   }
 
